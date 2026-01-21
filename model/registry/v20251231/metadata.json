@@ -1,0 +1,11 @@
+{
+    "model_version": "v20251231",
+    "model_type": "LogisticRegression",
+    "trained_on": "2025-12-31T10:17:56.529302",
+    "dataset_version": "v1",
+    "validation_split": 0.2,
+    "model_file": "model/registry/v20251231/model.pkl",
+    "metrics_file": "model/registry/v20251231/metrics.json",
+    "mode": "candidate",
+    "approved": false
+}

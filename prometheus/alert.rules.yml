@@ -1,0 +1,72 @@
+groups:
+- name: fraud-api-alerts
+  rules:
+  - alert: FraudAPIDown  # Fraud API Down Alert
+    expr: up{job="fraud_api"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Fraud API Down"
+      description: "Fraud detection API is down for more than 1 minute"
+
+  - alert: HighContainerCPU # High CPU Usage (cadvisor)
+    expr: rate(container_cpu_usage_seconds_total{container!="",image!=""}[1m]) > 0.8
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU Usage"
+      description: "High Container CPU usage"
+
+
+  - alert: HighContainerMemory # High Memory Usage (cadvisor)
+    expr: container_memory_usage_bytes{container!="",image!=""} > 800000000
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Memory Usage"
+      description: "Container memory usage more than limit"
+
+
+  - alert: HighFraudAPILatency
+    expr: histogram_quantile(
+            0.95,
+            sum(rate(http_request_duration_seconds_bucket{job="fraud_api"}[5m])) by (le)
+          ) > 2
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Fraud API Latency"
+      description: "95% of Fraud API requests are taking more than 2 seconds"
+
+
+  - alert: HighPredictionLatencyP95 # Prediction Latency Alert (P95)
+    expr: histogram_quantile(
+            0.95,
+            sum by (le) (
+              rate(prediction_latency_seconds_bucket[5m])
+            )
+          ) > 1
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High Prediction Latency (P95)"
+      description: "95% fraud predictions taking more than 1 second"
+
+  - alert: HighFraudAPIErrorRate
+    expr: rate(http_requests_total{job="fraud_api",status=~"5.."}[5m]) > 0.05
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High Fraud API Error Rate"
+      description: "Fraud API 5xx error rate are more than 5%"
+
+
+
+
+

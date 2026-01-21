@@ -1,0 +1,7 @@
+{
+    "evaluated_at": "2025-12-31T10:18:26.944987",
+    "decision": "REJECTED",
+    "reason": "Candidate MCC not sufficiently better than production",
+    "candidate_mcc": 0.7295956683443172,
+    "production_mcc": 0.7295956683443172
+}

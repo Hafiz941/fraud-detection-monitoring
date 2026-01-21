@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Virtual environments
+venv/
+.venv/
+
+# Data / datasets
+data/
+*.csv
+
+# Docker / Prometheus
+prometheus_data/
+
+# OS
+.DS_Store
