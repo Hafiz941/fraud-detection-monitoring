@@ -2,11 +2,32 @@ global:
   resolve_timeout: 5m
 
 route:
-  receiver: 'default-receiver'
+  receiver: 'slack-notifications'
   group_by: ['alertname', 'severity']
   group_wait: 30s
   group_interval: 5m
   repeat_interval: 4h
+  routes:
+  - matchers:
+    - severity="critical"
+    receiver: 'slack-critical'
+  - matchers:
+    - severity="warning"
+    receiver: 'slack-warning'
 
 receivers:
-- name: 'default-receiver'
+- name: 'slack-notifications'
+
+- name: 'slack-critical'
+  slack_configs:
+  - api_url: 'https://hooks.slack.com/services/XXXX/XXXX/XXXX'
+    channel: '#alerts'
+    title: '🚨 CRITICAL ALERT'
+    text: '{{ .CommonAnnotations.summary }}'
+
+- name: 'slack-warning'
+  slack_configs:
+  - api_url: 'https://hooks.slack.com/services/XXXX/XXXX/XXXX'
+    channel: '#alerts'
+    title: '⚠️ WARNING ALERT'
+    text: '{{ .CommonAnnotations.summary }}'
