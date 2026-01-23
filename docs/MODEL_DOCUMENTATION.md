@@ -53,6 +53,18 @@ The final fraud decision is computed as:
 - Model retraining can be triggered based on data drift.
 - Explainability and robustness checks can be repeated periodically.
 
+## Production Monitoring
+
+While this document focuses on model design, training, explainability, and offline evaluation, 
+runtime monitoring and alerting are handled separately.
+
+Production-level monitoring, alert thresholds, and system health checks are documented in:
+
+- `docs/monitoring.md`
+
+This separation ensures clear distinction between model behavior and system-level operational monitoring.
+
+
 
 
 

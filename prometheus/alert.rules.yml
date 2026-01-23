@@ -49,13 +49,13 @@ groups:
             sum by (le) (
               rate(prediction_latency_seconds_bucket[5m])
             )
-          ) > 1
+          ) > 0.2
     for: 2m
     labels:
       severity: warning
     annotations:
       summary: "High Prediction Latency (P95)"
-      description: "95% fraud predictions taking more than 1 second"
+      description: "P95 prediction latency exceeded 200 ms, indicating potential performance degradation"
 
   - alert: HighFraudAPIErrorRate
     expr: rate(http_requests_total{job="fraud_api",status=~"5.."}[5m]) > 0.05
@@ -65,6 +65,22 @@ groups:
     annotations:
       summary: "High Fraud API Error Rate"
       description: "Fraud API 5xx error rate are more than 5%"
+
+
+  - alert: CriticalPredictionLatencyP95
+    expr: histogram_quantile(
+            0.95,
+            sum by (le)(
+              rate(prediction_latency_seconds_bucket[5m])
+            )
+          ) > 0.5
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Critical Prediction Latency"
+      description: "P95 prediction latency exceeded 500 ms, indicating severe degradation"
+
 
 
 
