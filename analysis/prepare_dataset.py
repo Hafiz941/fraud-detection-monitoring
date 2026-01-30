@@ -97,6 +97,38 @@ print(f"Failed: {failure_count}")
 print(f"Success rate: {success_rate:.2f}%")
 print(f"Chargebacks: {chargeback_count}")
 
+# -----------------------
+# Merchant-level KPIs
+# -----------------------
+print("\nCalculating merchant-level KPIs...")
+
+merchant_kpis = (
+    df_clean
+    .groupby("merchant_id")
+    .agg(
+        total_transactions=("id", "count"),
+        successful_transactions=("successful", "sum"),
+        chargebacks=("chargeback", lambda x: x.notna().sum()),
+        total_amount=("base_currency_amount", "sum")
+    )
+    .reset_index()
+)
+
+merchant_kpis["failure_rate"] = (
+    (merchant_kpis["total_transactions"] - merchant_kpis["successful_transactions"])
+    / merchant_kpis["total_transactions"]
+)
+
+merchant_kpis["chargeback_rate"] = (
+    merchant_kpis["chargebacks"] / merchant_kpis["total_transactions"]
+)
+
+# Save
+merchant_output = Path("data/processed/merchant_kpis.csv")
+merchant_kpis.to_csv(merchant_output, index=False)
+
+print(f"Merchant KPIs saved to {merchant_output}")
+print(merchant_kpis.sort_values("chargeback_rate", ascending=False).head(5))
 
 
 
