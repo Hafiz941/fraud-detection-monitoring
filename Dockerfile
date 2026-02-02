@@ -22,6 +22,9 @@ RUN pip install --no-cache-dir "numpy==1.24.4"
 # Install the rest of the requirements (scikit-learn will match numpy)
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install the pandas
+RUN pip install pandas
+
 # Copy project files into the container
 COPY . /app
 

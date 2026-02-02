@@ -5,6 +5,7 @@ from pydantic import BaseModel
 import joblib
 import time
 import numpy as np
+import pandas as pd
 import logging
 from prometheus_client import (
     Counter,
@@ -91,6 +92,55 @@ RETRAINING_REQUIRED = Gauge(
     "retraining_required",
     "Indicates whether retraining is required (1=yes, 0=no)"
 )
+# -----------------------
+# Offline / Business Risk Metrics
+# -----------------------
+MERCHANT_CHARGEBACK_RATE = Gauge(
+    "fraud_merchant_chargeback_rate",
+    "Chargeback rate per merchant",
+    ["merchant_id"]
+)
+
+BIN_FAILURE_RATE = Gauge(
+    "fraud_bin_failure_rate",
+    "Failure rate per card BIN",
+    ["card_bin"]
+)
+
+def load_offline_risk_metrics():
+    try:
+        logger.info('{"event":"offline_metrics_start"}')
+
+        merchants = pd.read_csv("data/processed/merchant_kpis.csv")
+        bins = pd.read_csv("data/processed/bin_kpis.csv")
+
+        logger.info(
+            f'{{"event":"offline_metrics_files_loaded",'
+            f'"merchants_rows":{len(merchants)},'
+            f'"bins_rows":{len(bins)}}}'
+        )
+
+        # DEBUG prints (very important)
+        logger.info(f"Merchant columns: {merchants.columns.tolist()}")
+        logger.info(f"BIN columns: {bins.columns.tolist()}")
+
+        for _, r in merchants.iterrows():
+            MERCHANT_CHARGEBACK_RATE.labels(
+                merchant_id=str(r["merchant_id"])
+            ).set(float(r["chargeback_rate"]))
+
+        for _, r in bins.iterrows():
+            BIN_FAILURE_RATE.labels(
+                card_bin=str(r["card_bin"])
+            ).set(float(r["failure_rate"]))
+
+        logger.info('{"event":"offline_metrics_loaded"}')
+
+    except Exception as e:
+        logger.exception(f'{{"event":"offline_metrics_load_failed","error":"{e}"}}')
+
+
+
 
 # --------------------------------------------------
 # FastAPI App
@@ -121,11 +171,14 @@ def load_model():
         MODEL_LOADED.set(1)
         RETRAINING_REQUIRED.set(0)
         logger.info(f'{{"event":"startup","status":"model_loaded","path":"{MODEL_PATH}"}}')
+        
+        load_offline_risk_metrics()   
     except Exception:
         model = None
         MODEL_LOADED.set(0)
         RETRAINING_REQUIRED.set(1)
         logger.exception('{"event":"startup","status":"model_load_failed"}')
+
         
 # --------------------------------------------------
 # Request Logging Middleware
@@ -227,6 +280,7 @@ def predict(req: PredictRequest, request: Request):
         PREDICTION_ERRORS.inc()
         logger.exception('{"event":"prediction_failed"}')
         raise HTTPException(status_code=500, detail="Prediction failed")
+    
     
 # --------------------------------------------------
 # Metrics
