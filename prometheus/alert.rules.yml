@@ -66,6 +66,25 @@ groups:
       summary: "High Fraud API Error Rate"
       description: "Fraud API 5xx error rate are more than 5%"
 
+  - alert: HighMerchantChargebackRate # Merchant chargeback rate
+    expr: fraud_merchant_chargeback_rate > 0.03
+    for: 10m
+    labels:
+      severity: high
+    annotations:
+      summary: "High merchant chargeback rate detected"
+      description: "Merchant chargeback rate exceeded 3% for 10 minutes."
+
+  - alert: HighBINFailureRate #Bin failure rate
+    expr: fraud_bin_failure_rate > 0.10
+    for: 10m
+    labels:
+      severity: medium
+    annotations:
+      summary: "High BIN failure rate detected"
+
+
+
 
 
 
