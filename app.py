@@ -101,9 +101,22 @@ MERCHANT_CHARGEBACK_RATE = Gauge(
     ["merchant_id"]
 )
 
+MERCHANT_TOTAL_TRANSACTIONS = Gauge(
+    "fraud_merchant_total_transactions",
+    "Total transactions per merchant",
+    ["merchant_id"]
+)
+
 BIN_FAILURE_RATE = Gauge(
     "fraud_bin_failure_rate",
     "Failure rate per card BIN",
+    ["card_bin"]
+)
+
+# BIN total transaction count (offline)
+BIN_TOTAL_TRANSACTIONS = Gauge(
+    "fraud_bin_total_transactions",
+    "Total transactions per card BIN",
     ["card_bin"]
 )
 
@@ -124,14 +137,38 @@ def load_offline_risk_metrics():
         logger.info(f"Merchant columns: {merchants.columns.tolist()}")
         logger.info(f"BIN columns: {bins.columns.tolist()}")
 
+        # for _, r in merchants.iterrows():
+        #     MERCHANT_CHARGEBACK_RATE.labels(
+        #         merchant_id=str(r["merchant_id"])
+        #     ).set(float(r["chargeback_rate"]))
+        
         for _, r in merchants.iterrows():
-            MERCHANT_CHARGEBACK_RATE.labels(
-                merchant_id=str(r["merchant_id"])
-            ).set(float(r["chargeback_rate"]))
+            merchant_id = str(r["merchant_id"])
 
+            MERCHANT_TOTAL_TRANSACTIONS.labels(
+                merchant_id=merchant_id
+            ).set(float(r["total_transactions"]))
+
+            MERCHANT_CHARGEBACK_RATE.labels(
+                merchant_id=merchant_id
+            ).set(float(r["chargeback_rate"]))
+        
+        # for _, r in bins.iterrows():
+        #     BIN_FAILURE_RATE.labels(
+        #         card_bin=str(r["card_bin"])
+        #     ).set(float(r["failure_rate"]))
+            
         for _, r in bins.iterrows():
+            bin_id = str(r["card_bin"])
+
+            # total volume
+            BIN_TOTAL_TRANSACTIONS.labels(
+                card_bin=bin_id
+            ).set(float(r["total_transactions"]))
+
+            # failure rate (already present)
             BIN_FAILURE_RATE.labels(
-                card_bin=str(r["card_bin"])
+                card_bin=bin_id
             ).set(float(r["failure_rate"]))
 
         logger.info('{"event":"offline_metrics_loaded"}')

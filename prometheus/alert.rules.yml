@@ -68,20 +68,25 @@ groups:
 
   - alert: HighMerchantChargebackRate # Merchant chargeback rate
     expr: fraud_merchant_chargeback_rate > 0.03
-    for: 10m
+          AND fraud_merchant_total_transactions > 100
+    for: 15m
     labels:
       severity: high
     annotations:
-      summary: "High merchant chargeback rate detected"
-      description: "Merchant chargeback rate exceeded 3% for 10 minutes."
+      summary: "High merchant chargeback rate with significant volume"
+      description: "Merchant chargeback rate exceeded 3% with more than 100 transactions for 15 minutes."
 
-  - alert: HighBINFailureRate #Bin failure rate
-    expr: fraud_bin_failure_rate > 0.10
-    for: 10m
+
+  - alert: HighBINFailureRate
+    expr: fraud_bin_failure_rate > 0.50
+          AND fraud_bin_total_transactions > 100
+    for: 15m
     labels:
       severity: medium
     annotations:
-      summary: "High BIN failure rate detected"
+      summary: "High BIN failure rate with significant volume"
+      description: "BIN failure rate exceeded 10% with more than 100 transactions for 15 minutes."
+
 
 
 
