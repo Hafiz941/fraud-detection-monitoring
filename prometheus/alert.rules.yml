@@ -10,24 +10,24 @@ groups:
       summary: "Fraud API Down"
       description: "Fraud detection API is down for more than 1 minute"
 
-  - alert: HighContainerCPU # High CPU Usage (cadvisor)
-    expr: rate(container_cpu_usage_seconds_total{container!="",image!=""}[1m]) > 0.8
+  - alert: HighContainerCPU
+    expr: rate(container_cpu_usage_seconds_total{job="cadvisor", id=~"/docker/.+"}[1m]) > 0.8
     for: 2m
     labels:
       severity: warning
     annotations:
-      summary: "High CPU Usage"
-      description: "High Container CPU usage"
+      summary: "High container CPU usage detected"
+      description: "Container CPU usage exceeded 80% for more than 30 seconds."
 
 
-  - alert: HighContainerMemory # High Memory Usage (cadvisor)
-    expr: container_memory_usage_bytes{container!="",image!=""} > 800000000
+  - alert: HighContainerMemory
+    expr: container_memory_usage_bytes{id=~"/docker/342e223da83f.*"} > 150000000
     for: 2m
     labels:
       severity: warning
     annotations:
-      summary: "High Memory Usage"
-      description: "Container memory usage more than limit"
+      summary: "High Memory Usage (Fraud API)"
+      description: "Fraud API container memory usage exceeded threshold."
 
 
   - alert: HighFraudAPILatency
