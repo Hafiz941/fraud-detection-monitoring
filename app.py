@@ -32,6 +32,12 @@ HTTP_ERRORS = Counter(
     ["path", "status"]
 )
 
+HTTP_REQUESTS = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["path", "method", "status"]
+)
+
 MODEL_LOADED = Gauge(
     "model_loaded",
     "Whether model is loaded (1=loaded, 0=not)"
@@ -226,12 +232,19 @@ async def request_logging_middleware(request: Request, call_next):
     response = await call_next(request)
     duration = round(time.time() - start_time, 4)
 
+    HTTP_REQUESTS.labels(
+        path=request.url.path,
+        method=request.method,
+        status=str(response.status_code)
+    ).inc()
+
     logger.info(
         f'{{"method":"{request.method}",'
         f'"path":"{request.url.path}",'
         f'"status":{response.status_code},'
         f'"duration":{duration}}}'
     )
+
     return response
 
 # --------------------------------------------------
@@ -266,7 +279,7 @@ def predict(req: PredictRequest, request: Request):
             status_code=400,
             detail=f"Expected {expected_features} features, got {arr.shape[1]}"
         )
-
+    
     # Feature monitoring
     for i, val in enumerate(arr[0]):
         FEATURE_MEAN.labels(feature_index=str(i)).set(float(val))

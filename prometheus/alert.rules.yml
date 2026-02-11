@@ -49,7 +49,7 @@ groups:
             sum by (le) (
               rate(prediction_latency_seconds_bucket[5m])
             )
-          ) > 1
+          ) > 0.2
     for: 2m
     labels:
       severity: warning
@@ -58,13 +58,17 @@ groups:
       description: "95% fraud predictions taking more than 1 second"
 
   - alert: HighFraudAPIErrorRate
-    expr: rate(http_requests_total{job="fraud_api",status=~"5.."}[5m]) > 0.05
-    for: 2m
+    expr: (
+            sum(rate(http_requests_total{job="fraud_api", status=~"5.."}[1m]))
+            /
+            sum(rate(http_requests_total{job="fraud_api"}[1m]))
+          ) > 0.05
+    for: 30s
     labels:
       severity: critical
     annotations:
       summary: "High Fraud API Error Rate"
-      description: "Fraud API 5xx error rate are more than 5%"
+      description: "5xx error rate exceeded 5%"
 
   - alert: HighMerchantChargebackRate # Merchant chargeback rate
     expr: fraud_merchant_chargeback_rate > 0.03
