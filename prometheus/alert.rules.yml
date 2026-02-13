@@ -1,49 +1,44 @@
 groups:
 - name: fraud-api-alerts
   rules:
-  - alert: FraudAPIDown  # Fraud API Down Alert
+
+  # --------------------------------------------------
+  # Infrastructure Alerts
+  # --------------------------------------------------
+
+  - alert: FraudAPIDown
     expr: up{job="fraud_api"} == 0
     for: 1m
     labels:
       severity: critical
     annotations:
       summary: "Fraud API Down"
-      description: "Fraud detection API is down for more than 1 minute"
+      description: "Fraud detection API has been unreachable for more than 1 minute."
 
   - alert: HighContainerCPU
-    expr: rate(container_cpu_usage_seconds_total{job="cadvisor", id=~"/docker/.+"}[1m]) > 0.8
+    expr: rate(container_cpu_usage_seconds_total{id=~"/docker/342e223da83f.*"}[1m]) > 0.8
     for: 2m
     labels:
       severity: warning
     annotations:
-      summary: "High container CPU usage detected"
-      description: "Container CPU usage exceeded 80% for more than 30 seconds."
-
+      summary: "High Fraud API CPU usage"
+      description: "Fraud API container CPU usage exceeded 80% for more than 2 minutes."
 
   - alert: HighContainerMemory
-    expr: container_memory_usage_bytes{id=~"/docker/342e223da83f.*"} > 150000000
+    expr: container_memory_usage_bytes{id=~"/docker/342e223da83f.*"} > 800000000
     for: 2m
     labels:
       severity: warning
     annotations:
-      summary: "High Memory Usage (Fraud API)"
-      description: "Fraud API container memory usage exceeded threshold."
+      summary: "High Fraud API Memory usage"
+      description: "Fraud API container memory usage exceeded 800MB for more than 2 minutes."
 
 
-  - alert: HighFraudAPILatency
-    expr: histogram_quantile(
-            0.95,
-            sum(rate(http_request_duration_seconds_bucket{job="fraud_api"}[5m])) by (le)
-          ) > 2
-    for: 2m
-    labels:
-      severity: warning
-    annotations:
-      summary: "High Fraud API Latency"
-      description: "95% of Fraud API requests are taking more than 2 seconds"
+  # --------------------------------------------------
+  # Model Performance Alerts
+  # --------------------------------------------------
 
-
-  - alert: HighPredictionLatencyP95 # Prediction Latency Alert (P95)
+  - alert: HighPredictionLatencyP95
     expr: histogram_quantile(
             0.95,
             sum by (le) (
@@ -55,46 +50,47 @@ groups:
       severity: warning
     annotations:
       summary: "High Prediction Latency (P95)"
-      description: "95% fraud predictions taking more than 1 second"
+      description: "95% of fraud predictions exceeded 200ms latency over the last 5 minutes."
+
+
+  # --------------------------------------------------
+  # API Reliability Alerts
+  # --------------------------------------------------
 
   - alert: HighFraudAPIErrorRate
     expr: (
-            sum(rate(http_requests_total{job="fraud_api", status=~"5.."}[1m]))
+            sum(rate(http_requests_total{job="fraud_api", status=~"5.."}[5m]))
             /
-            sum(rate(http_requests_total{job="fraud_api"}[1m]))
+            sum(rate(http_requests_total{job="fraud_api"}[5m]))
           ) > 0.05
-    for: 30s
+    for: 2m
     labels:
       severity: critical
     annotations:
       summary: "High Fraud API Error Rate"
-      description: "5xx error rate exceeded 5%"
+      description: "5xx error rate exceeded 5% over the last 5 minutes."
 
-  - alert: HighMerchantChargebackRate # Merchant chargeback rate
+
+  # --------------------------------------------------
+  # Business Risk Alerts
+  # --------------------------------------------------
+
+  - alert: HighMerchantChargebackRate
     expr: fraud_merchant_chargeback_rate > 0.03
           AND fraud_merchant_total_transactions > 100
     for: 15m
     labels:
       severity: high
     annotations:
-      summary: "High merchant chargeback rate with significant volume"
+      summary: "High Merchant Chargeback Rate"
       description: "Merchant chargeback rate exceeded 3% with more than 100 transactions for 15 minutes."
 
-
   - alert: HighBINFailureRate
-    expr: fraud_bin_failure_rate > 0.50
+    expr: fraud_bin_failure_rate > 0.10
           AND fraud_bin_total_transactions > 100
     for: 15m
     labels:
       severity: medium
     annotations:
-      summary: "High BIN failure rate with significant volume"
+      summary: "High BIN Failure Rate"
       description: "BIN failure rate exceeded 10% with more than 100 transactions for 15 minutes."
-
-
-
-
-
-
-
-
