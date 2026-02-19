@@ -94,3 +94,22 @@ groups:
     annotations:
       summary: "High BIN Failure Rate"
       description: "BIN failure rate exceeded 10% with more than 100 transactions for 15 minutes."
+
+
+  - alert: LowFraudAPIAvailability
+    expr: 100 *
+          (
+            1 -
+            (
+              sum(increase(http_requests_total{job="fraud_api", status=~"5.."}[5m]))
+                OR vector(0)
+              /
+              clamp_min(sum(increase(http_requests_total{job="fraud_api"}[5m])), 1)
+            )
+          ) < 99
+    for: 2m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Fraud API availability dropped below 99%"
+      description: "Availability SLO violated for more than 2 minutes."
