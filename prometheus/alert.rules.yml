@@ -86,8 +86,8 @@ groups:
       description: "Merchant chargeback rate exceeded 3% with more than 100 transactions for 15 minutes."
 
   - alert: HighBINFailureRate
-    expr: fraud_bin_failure_rate > 0.10
-          AND fraud_bin_total_transactions > 100
+    expr: fraud_bin_failure_rate > 0.30
+          AND fraud_bin_total_transactions > 300
     for: 15m
     labels:
       severity: medium
@@ -113,3 +113,12 @@ groups:
     annotations:
       summary: "Fraud API availability dropped below 99%"
       description: "Availability SLO violated for more than 2 minutes."
+
+  - alert: ModelDriftDetected
+    expr: rate(drift_events_total[5m]) > 0
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Model drift detected"
+      description: "Drift events detected in the last 5 minutes."

@@ -294,10 +294,11 @@ def predict(req: PredictRequest, request: Request):
             else 0.0
         )
 
-        # Drift detection
-        if prob < 0.4: # 1. Low confidence drift
+        # Drift detection (production logic)
+        if prob < 0.4:
             DRIFT_EVENTS.labels(drift_type="low_confidence").inc()
             RETRAINING_REQUIRED.set(1)
+
         else:
             RETRAINING_REQUIRED.set(0)
 
