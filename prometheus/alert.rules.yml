@@ -122,3 +122,19 @@ groups:
     annotations:
       summary: "Model drift detected"
       description: "Drift events detected in the last 5 minutes."
+
+  - alert: HighErrorBudgetBurnRate
+    expr: (
+            (
+              sum(rate(http_requests_total{job="fraud_api", status=~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{job="fraud_api"}[5m]))
+            )
+            / 0.01
+          ) > 2
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "High Error Budget Burn Rate"
+      description: "Error budget is being consumed at more than 2x the allowed rate."

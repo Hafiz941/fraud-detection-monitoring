@@ -285,7 +285,11 @@ def predict(req: PredictRequest, request: Request):
         FEATURE_MEAN.labels(feature_index=str(i)).set(float(val))
 
     start = time.time()
-
+    # Temporary forced error for burn rate testing
+    if req.features[0] == -999:
+        HTTP_ERRORS.labels(path="/predict", status="500").inc()
+        raise HTTPException(status_code=500, detail="Forced test error") 
+    
     try:
         pred = int(model.predict(arr)[0])
         prob = (
