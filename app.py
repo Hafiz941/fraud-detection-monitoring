@@ -285,43 +285,42 @@ def predict(req: PredictRequest, request: Request):
         FEATURE_MEAN.labels(feature_index=str(i)).set(float(val))
 
     start = time.time()
-    # Temporary forced error for burn rate testing
-    if req.features[0] == -999:
-        HTTP_ERRORS.labels(path="/predict", status="500").inc()
-        raise HTTPException(status_code=500, detail="Forced test error") 
-    
+
     try:
+        # Forced test error
+        if req.features[0] == -999:
+            raise ValueError("Forced test error")
+
+        # Model Prediction
         pred = int(model.predict(arr)[0])
+
         prob = (
             float(max(model.predict_proba(arr)[0]))
             if hasattr(model, "predict_proba")
             else 0.0
         )
 
-        # Drift detection (production logic)
+        # Drift Detection
         if prob < 0.4:
             DRIFT_EVENTS.labels(drift_type="low_confidence").inc()
             RETRAINING_REQUIRED.set(1)
-
         else:
             RETRAINING_REQUIRED.set(0)
 
-        if len(arr[0]) > 3 and arr[0][3] > 10000: # 2. Simple feature outlier drift
+        if len(arr[0]) > 3 and arr[0][3] > 10000:
             DRIFT_EVENTS.labels(drift_type="feature_outlier").inc()
 
         latency = time.time() - start
 
-        # Metrics
-        # Model performance metrics
+        # Model Performance Metrics
         label = "fraud" if pred == 1 else "non_fraud"
         fraud_predictions_total.labels(prediction=label).inc()
         fraud_prediction_confidence.set(prob)
 
-        # Prometheus metrics
+        # Prometheus Metrics
         PREDICTION_COUNT.labels(model_name="fraud-model").inc()
         PREDICTION_LATENCY.observe(latency)
 
-        # Log a short, helpful line for docker logs / debugging
         logger.info(
             f'{{"event":"prediction","client":"{request.client.host}",'
             f'"prediction":{pred},"probability":{prob:.4f},'
@@ -331,10 +330,16 @@ def predict(req: PredictRequest, request: Request):
         return {"prediction": pred, "probability": prob}
 
     except Exception as e:
+        latency = time.time() - start
+
+        # Error Metrics (single place)
         HTTP_ERRORS.labels(path="/predict", status="500").inc()
         PREDICTION_ERRORS.inc()
+        PREDICTION_LATENCY.observe(latency)
+
         logger.exception('{"event":"prediction_failed"}')
-        raise HTTPException(status_code=500, detail="Prediction failed")
+
+        raise HTTPException(status_code=500, detail=str(e))
     
     
 # --------------------------------------------------
