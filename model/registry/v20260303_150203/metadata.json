@@ -1,0 +1,9 @@
+{
+    "model_version": "v20260303_150203",
+    "model_type": "LogisticRegression",
+    "trained_on": "2026-03-03T15:02:05.052358",
+    "dataset_version": "v1",
+    "validation_split": 0.2,
+    "registry_path": "model/registry/v20260303_150203",
+    "mode": "candidate"
+}
