@@ -3,7 +3,8 @@ name: Retraining Pipeline
 on:
   push:
     branches:
-      - "*"
+      - main
+      - feature/alert-analysis-clean
 
 jobs:
   retrain-model:
