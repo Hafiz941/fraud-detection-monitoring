@@ -3,7 +3,7 @@ name: Retraining Pipeline
 on:
   push:
     branches:
-      - main
+      - "*"
 
 jobs:
   retrain-model:
