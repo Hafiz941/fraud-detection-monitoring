@@ -34,6 +34,7 @@ PRODUCTION_METRICS_PATH = "model/model_metrics.json"
 
 CANDIDATE_MODEL_PATH = "model/candidate_model.pkl"
 CANDIDATE_METRICS_PATH = "model/candidate_model_metrics.json"
+CANDIDATE_METADATA_PATH = "model/candidate_model_metadata.json"
 
 # Unique version id (prevents overwrite)
 VERSION_ID = datetime.now(UTC).strftime("v%Y%m%d_%H%M%S")
@@ -86,7 +87,10 @@ def retrain():
         y_pred=y_pred,
         output_path=CANDIDATE_METRICS_PATH
     )
-
+    # Save candidate metrics
+    with open(CANDIDATE_METRICS_PATH, "w") as f:
+        json.dump(metrics, f, indent=4)
+        
     print("Candidate model evaluation metrics:")
     for k, v in metrics.items():
         if k != "confusion_matrix":
@@ -117,6 +121,10 @@ def retrain():
 
     # 6️ Save candidate artifacts
     joblib.dump(model, CANDIDATE_MODEL_PATH)
+    
+    # Save candidate metadata
+    with open(CANDIDATE_METADATA_PATH, "w") as f:
+        json.dump(metadata, f, indent=4)
 
     print(f"Versioned model saved to {MODEL_REGISTRY_DIR}")
 

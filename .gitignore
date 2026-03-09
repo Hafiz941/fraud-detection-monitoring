@@ -16,3 +16,7 @@ prometheus_data/
 
 # OS
 .DS_Store
+
+.env
+alertmanager/alertmanager.yml
+

@@ -123,6 +123,44 @@ merchant_kpis["chargeback_rate"] = (
     merchant_kpis["chargebacks"] / merchant_kpis["total_transactions"]
 )
 
+# -----------------------
+# BIN-level KPIs
+# -----------------------
+print("\nCalculating BIN-level KPIs...")
+
+# Safety check
+if "card_bin" not in df_clean.columns:
+    print("❌ card_bin column not found. BIN KPIs skipped.")
+else:
+    bin_kpis = (
+        df_clean
+        .dropna(subset=["card_bin"])
+        .groupby("card_bin")
+        .agg(
+            total_transactions=("id", "count"),
+            successful_transactions=("successful", "sum"),
+            chargebacks=("chargeback", lambda x: x.notna().sum())
+        )
+        .reset_index()
+    )
+
+    bin_kpis["failure_rate"] = (
+        (bin_kpis["total_transactions"] - bin_kpis["successful_transactions"])
+        / bin_kpis["total_transactions"]
+    )
+
+    bin_kpis["chargeback_rate"] = (
+        bin_kpis["chargebacks"] / bin_kpis["total_transactions"]
+    )
+
+    # Save BIN KPIs
+    bin_output = Path("data/processed/bin_kpis.csv")
+    bin_kpis.to_csv(bin_output, index=False)
+
+    print(f"BIN KPIs saved to {bin_output}")
+    print(bin_kpis.sort_values("chargeback_rate", ascending=False).head(5))
+
+
 # Save
 merchant_output = Path("data/processed/merchant_kpis.csv")
 merchant_kpis.to_csv(merchant_output, index=False)
