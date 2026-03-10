@@ -40,7 +40,6 @@ CANDIDATE_METADATA_PATH = "model/candidate_model_metadata.json"
 VERSION_ID = datetime.now(UTC).strftime("v%Y%m%d_%H%M%S")
 MODEL_REGISTRY_DIR = f"model/registry/{VERSION_ID}"
 
-
 # -------------------
 # Utility
 # -------------------
@@ -87,6 +86,7 @@ def retrain():
         y_pred=y_pred,
         output_path=CANDIDATE_METRICS_PATH
     )
+
     # Save candidate metrics
     with open(CANDIDATE_METRICS_PATH, "w") as f:
         json.dump(metrics, f, indent=4)
@@ -109,7 +109,7 @@ def retrain():
     metadata = {
         "model_version": VERSION_ID,
         "model_type": "LogisticRegression",
-        "trained_on": datetime.utcnow().isoformat(),
+        "trained_on": datetime.now(UTC).isoformat(),
         "dataset_version": DATA_VERSION,
         "validation_split": 0.2,
         "registry_path": MODEL_REGISTRY_DIR,

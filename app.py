@@ -2,6 +2,8 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel
+import os
+import json
 import joblib
 import time
 import numpy as np
@@ -98,6 +100,25 @@ RETRAINING_REQUIRED = Gauge(
     "retraining_required",
     "Indicates whether retraining is required (1=yes, 0=no)"
 )
+
+# -----------------------
+# Model Performance Metrics
+# -----------------------
+MODEL_MCC = Gauge(
+    "model_mcc",
+    "Matthews correlation coefficient of the current model"
+)
+
+MODEL_PRECISION = Gauge(
+    "model_precision",
+    "Model precision score"
+)
+
+MODEL_RECALL = Gauge(
+    "model_recall",
+    "Model recall score"
+)
+
 # -----------------------
 # Offline / Business Risk Metrics
 # -----------------------
@@ -182,7 +203,27 @@ def load_offline_risk_metrics():
     except Exception as e:
         logger.exception(f'{{"event":"offline_metrics_load_failed","error":"{e}"}}')
 
+def load_model_performance_metrics():
+    try:
+        metrics_path = "model/model_metrics.json"
 
+        if not os.path.exists(metrics_path):
+            metrics_path = "model/candidate_model_metrics.json"
+
+        if os.path.exists(metrics_path):
+            with open(metrics_path, "r") as f:
+                metrics = json.load(f)
+
+            MODEL_MCC.set(metrics.get("mcc", 0))
+            MODEL_PRECISION.set(metrics.get("precision", 0))
+            MODEL_RECALL.set(metrics.get("recall", 0))
+
+            logger.info('{"event":"model_metrics_loaded"}')
+
+    except Exception as e:
+        logger.exception(
+            f'{{"event":"model_metrics_load_failed","error":"{e}"}}'
+        )
 
 
 # --------------------------------------------------
@@ -215,7 +256,8 @@ def load_model():
         RETRAINING_REQUIRED.set(0)
         logger.info(f'{{"event":"startup","status":"model_loaded","path":"{MODEL_PATH}"}}')
         
-        load_offline_risk_metrics()   
+        load_offline_risk_metrics() 
+        load_model_performance_metrics()  
     except Exception:
         model = None
         MODEL_LOADED.set(0)
