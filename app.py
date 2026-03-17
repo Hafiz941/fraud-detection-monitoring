@@ -1,4 +1,5 @@
-# app.py
+# Fast API code where prediction API runs
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from pydantic import BaseModel

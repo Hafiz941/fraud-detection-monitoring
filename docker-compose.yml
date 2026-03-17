@@ -1,6 +1,8 @@
 services:
   fraud-api:
-    build: .
+    build: 
+      context: .
+      dockerfile: docker/Dockerfile
     container_name: fraud-api
     ports:
       - "8000:8000"
@@ -15,8 +17,8 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--web.enable-lifecycle'
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/alert.rules.yml:/etc/prometheus/alert.rules.yml
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alert.rules.yml:/etc/prometheus/alert.rules.yml
       - prometheus_data:/prometheus
     restart: unless-stopped
 
