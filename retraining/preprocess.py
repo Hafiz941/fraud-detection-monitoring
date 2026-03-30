@@ -1,8 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-
-RAW_PATH = "data/raw/creditcard_v1.csv"
-PROCESSED_PATH = "data/processed/creditcard_v1_processed.csv"
+from retraining.config import RAW_PATH, PROCESSED_PATH
 
 def preprocess():
     df = pd.read_csv(RAW_PATH)

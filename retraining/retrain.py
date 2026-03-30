@@ -18,27 +18,14 @@ from datetime import datetime, UTC
 from evaluation.evaluate import evaluate_model
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from retraining.config import DATA_PATH, DATA_VERSION, RANDOM_STATE, CANDIDATE_MODEL_PATH, CANDIDATE_METRICS_PATH, CANDIDATE_METADATA_PATH, PRODUCTION_MODEL_PATH, PRODUCTION_METRICS_PATH, MODEL_REGISTRY_BASE, TEST_SIZE
 
-
-# -------------------
-# Configuration
-# -------------------
-DATA_VERSION = "v1"
-DATA_PATH = "data/processed/creditcard_v1_processed.csv"
-RANDOM_STATE = 42
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "candidate"
 
-PRODUCTION_MODEL_PATH = "model/model.pkl"
-PRODUCTION_METRICS_PATH = "model/model_metrics.json"
-
-CANDIDATE_MODEL_PATH = "model/candidate_model.pkl"
-CANDIDATE_METRICS_PATH = "model/candidate_model_metrics.json"
-CANDIDATE_METADATA_PATH = "model/candidate_model_metadata.json"
-
 # Unique version id (prevents overwrite)
 VERSION_ID = datetime.now(UTC).strftime("v%Y%m%d_%H%M%S")
-MODEL_REGISTRY_DIR = f"model/registry/{VERSION_ID}"
+MODEL_REGISTRY_DIR = f"{MODEL_REGISTRY_BASE}/{VERSION_ID}"
 
 # -------------------
 # Utility
@@ -69,7 +56,7 @@ def retrain():
     # 2️ Train / validation split
     X_train, X_val, y_train, y_val = train_test_split(
         X, y,
-        test_size=0.2,
+        test_size=TEST_SIZE,
         random_state=RANDOM_STATE,
         stratify=y
     )
@@ -111,7 +98,7 @@ def retrain():
         "model_type": "LogisticRegression",
         "trained_on": datetime.now(UTC).isoformat(),
         "dataset_version": DATA_VERSION,
-        "validation_split": 0.2,
+        "validation_split": TEST_SIZE,
         "registry_path": MODEL_REGISTRY_DIR,
         "mode": MODE
     }
