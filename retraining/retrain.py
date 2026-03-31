@@ -19,6 +19,9 @@ from evaluation.evaluate import evaluate_model
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from retraining.config import DATA_PATH, DATA_VERSION, RANDOM_STATE, CANDIDATE_MODEL_PATH, CANDIDATE_METRICS_PATH, CANDIDATE_METADATA_PATH, PRODUCTION_MODEL_PATH, PRODUCTION_METRICS_PATH, MODEL_REGISTRY_BASE, TEST_SIZE
+from retraining.logger import get_logger
+
+logger = get_logger()
 
 
 MODE = sys.argv[1] if len(sys.argv) > 1 else "candidate"
@@ -41,14 +44,14 @@ def load_production_metrics():
 # Retraining Pipeline
 # -------------------
 def retrain():
-    print("Starting retraining pipeline...")
-    print(f"Model version: {VERSION_ID}")
+    logger.info("Starting retraining pipeline...")
+    logger.info(f"Model version: {VERSION_ID}")
 
     os.makedirs(MODEL_REGISTRY_DIR, exist_ok=True)
 
     # 1 Load data
     df = pd.read_csv(DATA_PATH)
-    print(f"Loaded dataset with shape: {df.shape}")
+    logger.info(f"Loaded dataset with shape: {df.shape}")
 
     X = df.drop("Class", axis=1)
     y = df["Class"]
@@ -78,10 +81,10 @@ def retrain():
     with open(CANDIDATE_METRICS_PATH, "w") as f:
         json.dump(metrics, f, indent=4)
         
-    print("Candidate model evaluation metrics:")
+    logger.info("Candidate model evaluation metrics:")
     for k, v in metrics.items():
         if k != "confusion_matrix":
-            print(f"{k}: {v}")
+            logger.info(f"{k}: {v}")
 
     # 5️ Save versioned artifacts
     versioned_model_path = f"{MODEL_REGISTRY_DIR}/model.pkl"
@@ -113,7 +116,7 @@ def retrain():
     with open(CANDIDATE_METADATA_PATH, "w") as f:
         json.dump(metadata, f, indent=4)
 
-    print(f"Versioned model saved to {MODEL_REGISTRY_DIR}")
+    logger.info(f"Versioned model saved to {MODEL_REGISTRY_DIR}")
 
     # -------------------
     # Promotion Logic
@@ -122,19 +125,19 @@ def retrain():
     promote = False
 
     if MODE == "production":
-        print("Production mode forced. Promoting model.")
+        logger.info("Production mode forced. Promoting model.")
         promote = True
 
     elif prod_metrics is None:
-        print("No production model found. Promoting candidate.")
+        logger.info("No production model found. Promoting candidate.")
         promote = True
 
     elif metrics.get("mcc", 0) > prod_metrics.get("mcc", 0):
-        print("Candidate model outperforms production (MCC improved). Promoting.")
+        logger.info("Candidate model outperforms production (MCC improved). Promoting.")
         promote = True
 
     else:
-        print("Candidate model did not outperform production.")
+        logger.info("Candidate model did not outperform production.")
 
     # 7️ Promote if approved
     if promote:
@@ -143,11 +146,11 @@ def retrain():
         with open(PRODUCTION_METRICS_PATH, "w") as f:
             json.dump(metrics, f, indent=4)
 
-        print("Production model updated successfully.")
+        logger.info("Production model updated successfully.")
     else:
-        print("Production model unchanged.")
+        logger.info("Production model unchanged.")
 
-    print("Retraining pipeline completed.")
+    logger.info("Retraining pipeline completed.")
 
 # -------------------
 # Entry point
