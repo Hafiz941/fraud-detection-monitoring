@@ -19,3 +19,24 @@
 2026-03-31 15:30:31,407 - INFO - Retraining pipeline completed.
 2026-03-31 15:30:31,411 - INFO - 
 ✅ Pipeline completed successfully!
+2026-04-02 14:24:34,607 - INFO - 🚀 Starting full retraining pipeline...
+
+2026-04-02 14:24:34,608 - INFO - 🔹 Step 1: Data Preprocessing...
+2026-04-02 14:24:38,867 - INFO - 
+🔹 Step 2: Model Retraining...
+2026-04-02 14:24:38,868 - INFO - Starting retraining pipeline...
+2026-04-02 14:24:38,868 - INFO - Model version: v20260402_132434
+2026-04-02 14:24:39,480 - INFO - Loaded dataset with shape: (284807, 31)
+2026-04-02 14:24:39,906 - INFO - Candidate model evaluation metrics:
+2026-04-02 14:24:39,906 - INFO - accuracy: 0.9991573329588147
+2026-04-02 14:24:39,906 - INFO - precision: 0.8289473684210527
+2026-04-02 14:24:39,906 - INFO - recall: 0.6428571428571429
+2026-04-02 14:24:39,906 - INFO - f1_score: 0.7241379310344828
+2026-04-02 14:24:39,906 - INFO - mcc: 0.7295956683443172
+2026-04-02 14:24:39,906 - INFO - evaluated_at: 2026-04-02T13:24:39.906292
+2026-04-02 14:24:39,909 - INFO - Versioned model saved to model/registry/v20260402_132434
+2026-04-02 14:24:39,909 - INFO - Candidate model did not outperform production.
+2026-04-02 14:24:39,909 - INFO - Production model unchanged.
+2026-04-02 14:24:39,909 - INFO - Retraining pipeline completed.
+2026-04-02 14:24:39,913 - INFO - 
+✅ Pipeline completed successfully!
