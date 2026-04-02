@@ -16,7 +16,7 @@ groups:
       description: "Fraud detection API has been unreachable for more than 1 minute."
 
   - alert: HighContainerCPU
-    expr: rate(container_cpu_usage_seconds_total{id=~"/docker/342e223da83f.*"}[1m]) > 0.8
+    expr: rate(container_cpu_usage_seconds_total{name=~".*fraud-api.*"}[1m]) > 0.8
     for: 2m
     labels:
       severity: warning
@@ -25,7 +25,7 @@ groups:
       description: "Fraud API container CPU usage exceeded 80% for more than 2 minutes."
 
   - alert: HighContainerMemory
-    expr: container_memory_usage_bytes{id=~"/docker/342e223da83f.*"} > 800000000
+    expr: container_memory_usage_bytes{name=~".*fraud-api.*"} > 800000000
     for: 2m
     labels:
       severity: warning
@@ -86,7 +86,7 @@ groups:
       description: "Merchant chargeback rate exceeded 3% with more than 100 transactions for 15 minutes."
 
   - alert: HighBINFailureRate
-    expr: fraud_bin_failure_rate > 0.30
+    expr: fraud_bin_failure_rate > 0.10
           AND fraud_bin_total_transactions > 300
     for: 15m
     labels:
@@ -138,3 +138,12 @@ groups:
     annotations:
       summary: "High Error Budget Burn Rate"
       description: "Error budget is being consumed at more than 2x the allowed rate."
+
+  - alert: RetrainingTriggered
+    expr: increase(model_retraining_total[5m]) > 0
+    for: 1m
+    labels:
+      severity: info
+    annotations:
+      summary: "Model retraining triggered"
+      description: "A retraining job was executed in the last 5 minutes."
