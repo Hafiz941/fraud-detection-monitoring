@@ -34,4 +34,4 @@ jobs:
 
       - name: Run Full MLOps Pipeline
         run: |
-          python -m retraining.pipel
+          python -m retraining.pipeline
