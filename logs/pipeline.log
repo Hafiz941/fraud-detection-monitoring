@@ -40,3 +40,45 @@
 2026-04-02 14:24:39,909 - INFO - Retraining pipeline completed.
 2026-04-02 14:24:39,913 - INFO - 
 ✅ Pipeline completed successfully!
+2026-04-02 14:31:17,813 - INFO - 🚀 Starting full retraining pipeline...
+
+2026-04-02 14:31:17,814 - INFO - 🔹 Step 1: Data Preprocessing...
+2026-04-02 14:31:22,056 - INFO - 
+🔹 Step 2: Model Retraining...
+2026-04-02 14:31:22,056 - INFO - Starting retraining pipeline...
+2026-04-02 14:31:22,056 - INFO - Model version: v20260402_133117
+2026-04-02 14:31:22,636 - INFO - Loaded dataset with shape: (284807, 31)
+2026-04-02 14:31:22,902 - INFO - Candidate model evaluation metrics:
+2026-04-02 14:31:22,902 - INFO - accuracy: 0.9991573329588147
+2026-04-02 14:31:22,902 - INFO - precision: 0.8289473684210527
+2026-04-02 14:31:22,902 - INFO - recall: 0.6428571428571429
+2026-04-02 14:31:22,902 - INFO - f1_score: 0.7241379310344828
+2026-04-02 14:31:22,902 - INFO - mcc: 0.7295956683443172
+2026-04-02 14:31:22,902 - INFO - evaluated_at: 2026-04-02T13:31:22.901276
+2026-04-02 14:31:22,904 - INFO - Versioned model saved to model/registry/v20260402_133117
+2026-04-02 14:31:22,905 - INFO - Candidate model did not outperform production.
+2026-04-02 14:31:22,905 - INFO - Production model unchanged.
+2026-04-02 14:31:22,905 - INFO - Retraining pipeline completed.
+2026-04-02 14:31:22,908 - INFO - 
+✅ Pipeline completed successfully!
+2026-04-02 14:32:01,533 - INFO - 🚀 Starting full retraining pipeline...
+
+2026-04-02 14:32:01,533 - INFO - 🔹 Step 1: Data Preprocessing...
+2026-04-02 14:32:05,791 - INFO - 
+🔹 Step 2: Model Retraining...
+2026-04-02 14:32:05,791 - INFO - Starting retraining pipeline...
+2026-04-02 14:32:05,791 - INFO - Model version: v20260402_133201
+2026-04-02 14:32:06,384 - INFO - Loaded dataset with shape: (284807, 31)
+2026-04-02 14:32:06,633 - INFO - Candidate model evaluation metrics:
+2026-04-02 14:32:06,633 - INFO - accuracy: 0.9991573329588147
+2026-04-02 14:32:06,633 - INFO - precision: 0.8289473684210527
+2026-04-02 14:32:06,633 - INFO - recall: 0.6428571428571429
+2026-04-02 14:32:06,633 - INFO - f1_score: 0.7241379310344828
+2026-04-02 14:32:06,633 - INFO - mcc: 0.7295956683443172
+2026-04-02 14:32:06,633 - INFO - evaluated_at: 2026-04-02T13:32:06.632398
+2026-04-02 14:32:06,635 - INFO - Versioned model saved to model/registry/v20260402_133201
+2026-04-02 14:32:06,635 - INFO - Candidate model did not outperform production.
+2026-04-02 14:32:06,635 - INFO - Production model unchanged.
+2026-04-02 14:32:06,635 - INFO - Retraining pipeline completed.
+2026-04-02 14:32:06,638 - INFO - 
+✅ Pipeline completed successfully!
