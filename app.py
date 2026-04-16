@@ -242,7 +242,8 @@ class PredictRequest(BaseModel):
     features: list # list of numeric features
 
 class PredictResponse(BaseModel):
-    prediction: int
+    prediction: str
+    label: int
     probability: float
 
 # --------------------------------------------------
@@ -370,7 +371,20 @@ def predict(req: PredictRequest, request: Request):
             f'"latency":{latency:.4f}}}'
         )
 
-        return {"prediction": pred, "probability": prob}
+        label = "fraud" if pred == 1 else "non-fraud"
+        if prob > 0.8:
+            risk = "high"
+        elif prob > 0.5:
+            risk = "medium"
+        else:
+            risk = "low"
+            
+        return {
+            "prediction": label,
+            "label": pred,
+            "probability": prob,
+            "risk_level": risk
+        }
 
     except Exception as e:
         latency = time.time() - start
